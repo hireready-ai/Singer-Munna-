@@ -6,19 +6,23 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Starting seed process for Singer Munna Kumar Nirala website...');
 
-  // 1. Admin User
-  const passwordHash = await bcrypt.hash('nirala@admin2026', 10);
-  await prisma.adminUser.upsert({
-    where: { username: 'admin' },
-    update: { passwordHash },
-    create: {
-      username: 'admin',
-      passwordHash,
-      name: 'Munna Kumar Nirala (Admin)',
-      role: 'SUPER_ADMIN',
-    },
-  });
-  console.log('✓ Admin user verified (username: admin, pass: nirala@admin2026)');
+  // 1. Admin User (preserves custom credentials once created)
+  const existingAdmin = await prisma.adminUser.findFirst();
+  if (!existingAdmin) {
+    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'nirala@admin2026';
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    await prisma.adminUser.create({
+      data: {
+        username: process.env.ADMIN_DEFAULT_USERNAME || 'admin',
+        passwordHash,
+        name: 'Munna Kumar Nirala (Admin)',
+        role: 'SUPER_ADMIN',
+      },
+    });
+    console.log('✓ Initial Admin user created');
+  } else {
+    console.log(`✓ Admin user exists (${existingAdmin.username}) — custom credentials preserved safely`);
+  }
 
   // 2. Site Settings
   await prisma.siteSettings.upsert({

@@ -41,4 +41,5 @@ pnpm-debug.log*
 
 # temporary files
 *.tmp*
+*.tsbuildinfo
 cloudflared.exe

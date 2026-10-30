@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Save, Sparkles, CheckCircle2, AlertCircle, Phone, MessageCircle, Mail, MapPin, Youtube, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { Save, Sparkles, CheckCircle2, AlertCircle, Phone, MessageCircle, Mail, MapPin, Youtube, ExternalLink, ShieldCheck, Lock, ArrowRight } from 'lucide-react';
 import { adminApi } from '@/lib/admin-client';
 
 export default function AdminSettingsPage() {
@@ -92,6 +93,33 @@ export default function AdminSettingsPage() {
           <span>वेबसाइट पर देखें</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
+      </div>
+
+      {/* Admin Security Banner */}
+      <div className="bg-gradient-to-r from-[#1A162B] via-[#151B2B] to-[#151B2B] rounded-2xl border border-gold/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-gold/15 border border-gold/30 flex items-center justify-center text-gold flex-shrink-0">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-sm font-serif font-bold text-gold flex items-center gap-2">
+              <span>एडमिन सुरक्षा एवं पासवर्ड (Security & Password)</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">सुरक्षित</span>
+            </h3>
+            <p className="text-xs text-gray-300 mt-0.5">
+              वेबसाइट लाइव करने से पहले अपना एडमिन पासवर्ड व यूज़रनेम यहाँ से बदलें।
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/admin/security"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gold hover:bg-gold-light text-navy text-xs font-serif font-bold flex items-center justify-center gap-2 transition shadow-lg flex-shrink-0"
+        >
+          <Lock className="w-3.5 h-3.5" />
+          <span>पासवर्ड बदलें (Change Password)</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {success && (

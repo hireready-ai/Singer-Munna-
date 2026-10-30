@@ -24,6 +24,7 @@ import {
   Layers,
   MapPin,
   MessageSquare,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -42,9 +43,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    fetch('/api/auth/me')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    fetch('/api/auth/me', { headers })
       .then((res) => {
         if (!res.ok) {
+          if (typeof window !== 'undefined') localStorage.removeItem('admin_token');
           router.push('/admin/login');
           return;
         }
@@ -54,17 +62,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (data?.authenticated) {
           setUser(data.user);
         } else {
+          if (typeof window !== 'undefined') localStorage.removeItem('admin_token');
           router.push('/admin/login');
         }
       })
       .catch(() => {
+        if (typeof window !== 'undefined') localStorage.removeItem('admin_token');
         router.push('/admin/login');
       })
       .finally(() => setLoading(false));
   }, [pathname, isLoginPage, router]);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_token');
+    }
     router.push('/admin/login');
   };
 
@@ -86,6 +103,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const sidebarLinks = [
     { label: 'डैशबोर्ड (Dashboard)', href: '/admin', icon: LayoutDashboard },
     { label: 'वेबसाइट सेटिंग्स (Settings)', href: '/admin/settings', icon: Settings },
+    { label: 'सुरक्षा व पासवर्ड (Security & Password)', href: '/admin/security', icon: ShieldCheck },
     { label: 'होमपेज हीरो बैनर (Hero Banner)', href: '/admin/hero', icon: Sparkles },
     { label: 'कार्यक्रम श्रेणियां (Event Types)', href: '/admin/event-types', icon: Layers },
     { label: 'सफल कार्यक्रम शहर (Locations)', href: '/admin/locations', icon: MapPin },
@@ -203,10 +221,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs text-ivory/90 bg-navy-light px-3 py-1.5 rounded-full border border-gold/20 shadow-sm">
+            <Link
+              href="/admin/security"
+              className="flex items-center gap-2 text-xs text-ivory/90 bg-navy-light hover:bg-gold hover:text-navy px-3 py-1.5 rounded-full border border-gold/20 shadow-sm transition"
+              title="सुरक्षा सेटिंग्स व पासवर्ड बदलें"
+            >
               <User className="w-3.5 h-3.5 text-gold" />
-              <span>{user?.name || 'मुन्ना कुमार निराला (Admin)'}</span>
-            </div>
+              <span>{user?.name || 'मुन्ना कुमार निराला'}</span>
+              <span className="font-mono text-[10px] opacity-80">({user?.username || 'admin'})</span>
+            </Link>
           </div>
         </header>
 
