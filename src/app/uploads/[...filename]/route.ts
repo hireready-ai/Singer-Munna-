@@ -35,6 +35,8 @@ export async function GET(
       path.join(process.cwd(), 'public', 'uploads', safeFilename),
       path.join(process.cwd(), 'public', 'images', safeFilename),
       path.join(process.cwd(), 'public', safeFilename),
+      path.resolve('./public/uploads', safeFilename),
+      path.resolve('./public/images', safeFilename),
     ];
 
     let targetPath: string | null = null;
