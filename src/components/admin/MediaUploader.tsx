@@ -14,6 +14,7 @@ import {
   Crop,
 } from 'lucide-react';
 import { ImageCropperModal } from './ImageCropperModal';
+import { adminApi } from '@/lib/admin-client';
 
 interface MediaUploaderProps {
   label: string;
@@ -68,8 +69,7 @@ export function MediaUploader({
 
   const fetchLibrary = () => {
     setLibraryLoading(true);
-    fetch(`/api/media${fileType !== 'IMAGE' ? `?type=${fileType}` : ''}`)
-      .then((res) => res.json())
+    adminApi(`/api/media${fileType !== 'IMAGE' ? `?type=${fileType}` : ''}`)
       .then((data) => {
         if (Array.isArray(data)) setLibraryAssets(data);
       })
@@ -86,15 +86,13 @@ export function MediaUploader({
     formData.append('category', 'Uploaded');
 
     try {
-      const res = await fetch('/api/media', {
+      const data = await adminApi('/api/media', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
-
       const finalUrl = data.fileUrl || data.url;
+      if (!finalUrl) throw new Error('File URL not returned');
       onChange(finalUrl);
       setUploadSuccess(true);
       setTimeout(() => setUploadSuccess(false), 3000);

@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminGalleryPage() {
   const [images, setImages] = useState<any[]>([]);
@@ -65,13 +66,10 @@ export default function AdminGalleryPage() {
       const url = isEdit ? `/api/gallery/${editingImage.id}` : '/api/gallery';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingImage),
       });
-
-      if (!res.ok) throw new Error('फोटो सेव करने में समस्या आई');
 
       setIsModalOpen(false);
       fetchImages();
@@ -97,23 +95,21 @@ export default function AdminGalleryPage() {
     formData.append('category', 'Stage Performances');
 
     try {
-      // 1. Upload to media library
-      const res = await fetch('/api/media', {
+      // 1. Upload to media library with admin auth
+      const data = await adminApi('/api/media', {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error('Bulk upload failed');
 
-      const uploadedAssets = data.assets || [data];
+      const uploadedAssets = data.assets || (data.fileUrl ? [data] : []);
+      if (!uploadedAssets.length) throw new Error('कोई फोटो अपलोड नहीं हो पाई');
 
       // 2. Automatically add each to Gallery!
       for (const asset of uploadedAssets) {
-        await fetch('/api/gallery', {
+        await adminApi('/api/gallery', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: asset.title.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+            title: (asset.title || 'Stage Photo').replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
             titleHi: 'लाइव मंच फोटो',
             imageUrl: asset.fileUrl,
             category: 'Stage Performances',
@@ -140,8 +136,7 @@ export default function AdminGalleryPage() {
     if (!confirm(`क्या आप फोटो "${title}" को गैलरी से हटाना चाहते हैं?`)) return;
 
     try {
-      const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete photo');
+      await adminApi(`/api/gallery/${id}`, { method: 'DELETE' });
       fetchImages();
       setMsg('फोटो गैलरी से हटा दी गई!');
       setTimeout(() => setMsg(null), 3000);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSessionAdmin, logAudit } from '@/lib/auth';
 
@@ -42,9 +43,16 @@ export async function POST(req: NextRequest) {
     });
 
     await logAudit('CREATE', 'GalleryImage', image.id, `Added gallery image ${image.title}`, session.username);
+    
+    try {
+      revalidatePath('/');
+      revalidatePath('/gallery');
+    } catch (e) {
+      console.warn('Revalidate warning:', e);
+    }
+
     return NextResponse.json(image);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-

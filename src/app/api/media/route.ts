@@ -95,11 +95,13 @@ export async function POST(req: NextRequest) {
         success: true,
         ...results[0],
         fileUrl: results[0].fileUrl,
+        assets: results,
       });
     }
 
     return NextResponse.json({
       success: true,
+      fileUrl: results[0]?.fileUrl || '',
       assets: results,
       count: results.length,
     });

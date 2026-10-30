@@ -14,6 +14,7 @@ import {
   Building2,
 } from 'lucide-react';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 interface LocationItem {
   id: string;
@@ -84,13 +85,10 @@ export default function AdminLocationsPage() {
       const url = isEdit ? `/api/locations/${editingItem.id}` : '/api/locations';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingItem),
       });
-
-      if (!res.ok) throw new Error('स्थान सुरक्षित करने में विफल');
 
       setIsModalOpen(false);
       await fetchLocations();
@@ -106,8 +104,7 @@ export default function AdminLocationsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`क्या आप स्थान "${name}" को हटाना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/locations/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('हटाने में विफल');
+      await adminApi(`/api/locations/${id}`, { method: 'DELETE' });
       await fetchLocations();
       setMsg('स्थान हटा दिया गया!');
       setTimeout(() => setMsg(null), 3000);
@@ -118,9 +115,8 @@ export default function AdminLocationsPage() {
 
   const togglePublished = async (item: LocationItem) => {
     try {
-      await fetch(`/api/locations/${item.id}`, {
+      await adminApi(`/api/locations/${item.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ published: !item.published }),
       });
       fetchLocations();

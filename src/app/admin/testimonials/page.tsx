@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 interface TestimonialItem {
   id: string;
@@ -95,13 +96,10 @@ export default function AdminTestimonialsPage() {
       const url = isEdit ? `/api/testimonials/${editingItem.id}` : '/api/testimonials';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingItem),
       });
-
-      if (!res.ok) throw new Error('रिव्यू सुरक्षित करने में विफल');
 
       setIsModalOpen(false);
       await fetchItems();
@@ -117,8 +115,7 @@ export default function AdminTestimonialsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`क्या आप समीक्षा "${name}" को हटाना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/testimonials/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('हटाने में विफल');
+      await adminApi(`/api/testimonials/${id}`, { method: 'DELETE' });
       await fetchItems();
       setMsg('समीक्षा हटा दी गई!');
       setTimeout(() => setMsg(null), 3000);
@@ -129,9 +126,8 @@ export default function AdminTestimonialsPage() {
 
   const togglePublished = async (item: TestimonialItem) => {
     try {
-      await fetch(`/api/testimonials/${item.id}`, {
+      await adminApi(`/api/testimonials/${item.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ published: !item.published }),
       });
       fetchItems();

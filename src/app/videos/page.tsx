@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { VideosClient } from './videos-client';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function VideosPage() {

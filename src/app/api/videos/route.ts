@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSessionAdmin, logAudit } from '@/lib/auth';
 
@@ -39,9 +40,17 @@ export async function POST(req: NextRequest) {
     });
 
     await logAudit('CREATE', 'Video', video.id, `Created video ${video.title}`, session.username);
+    
+    // Invalidate client-side page cache so customer website reflects immediately
+    try {
+      revalidatePath('/');
+      revalidatePath('/videos');
+    } catch (e) {
+      console.warn('Revalidate warning:', e);
+    }
+
     return NextResponse.json(video);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-

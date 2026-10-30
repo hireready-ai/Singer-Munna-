@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 interface EventTypeItem {
   id: string;
@@ -81,13 +82,10 @@ export default function AdminEventTypesPage() {
       const url = isEdit ? `/api/event-types/${editingItem.id}` : '/api/event-types';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingItem),
       });
-
-      if (!res.ok) throw new Error('इवेंट श्रेणी सहेजने में विफल');
 
       setIsModalOpen(false);
       await fetchItems();
@@ -103,8 +101,7 @@ export default function AdminEventTypesPage() {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`क्या आप श्रेणी "${name}" को हटाना चाहते हैं?`)) return;
     try {
-      const res = await fetch(`/api/event-types/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('हटाने में विफल');
+      await adminApi(`/api/event-types/${id}`, { method: 'DELETE' });
       await fetchItems();
       setMsg('इवेंट श्रेणी हटा दी गई!');
       setTimeout(() => setMsg(null), 3000);
@@ -115,9 +112,8 @@ export default function AdminEventTypesPage() {
 
   const togglePublished = async (item: EventTypeItem) => {
     try {
-      await fetch(`/api/event-types/${item.id}`, {
+      await adminApi(`/api/event-types/${item.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ published: !item.published }),
       });
       fetchItems();

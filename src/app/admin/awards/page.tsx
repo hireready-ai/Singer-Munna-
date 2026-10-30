@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminAwardsPage() {
   const [tab, setTab] = useState<'AWARDS' | 'PRESS'>('AWARDS');
@@ -57,13 +58,11 @@ export default function AdminAwardsPage() {
       const url = isEdit ? `/api/awards/${editingAward.id}` : '/api/awards';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingAward),
       });
 
-      if (!res.ok) throw new Error('Failed to save award');
       setIsAwardModalOpen(false);
       fetchData();
       setMsg(isEdit ? 'Award updated!' : 'Award added!');
@@ -78,7 +77,7 @@ export default function AdminAwardsPage() {
   const handleDeleteAward = async (id: string, title: string) => {
     if (!confirm(`Delete award "${title}"?`)) return;
     try {
-      await fetch(`/api/awards/${id}`, { method: 'DELETE' });
+      await adminApi(`/api/awards/${id}`, { method: 'DELETE' });
       fetchData();
       setMsg('Award deleted!');
       setTimeout(() => setMsg(null), 3000);
@@ -96,13 +95,11 @@ export default function AdminAwardsPage() {
       const url = isEdit ? `/api/press/${editingPress.id}` : '/api/press';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingPress),
       });
 
-      if (!res.ok) throw new Error('Failed to save press article');
       setIsPressModalOpen(false);
       fetchData();
       setMsg(isEdit ? 'Press article updated!' : 'Press article added!');
@@ -117,7 +114,7 @@ export default function AdminAwardsPage() {
   const handleDeletePress = async (id: string, title: string) => {
     if (!confirm(`Delete press item "${title}"?`)) return;
     try {
-      await fetch(`/api/press/${id}`, { method: 'DELETE' });
+      await adminApi(`/api/press/${id}`, { method: 'DELETE' });
       fetchData();
       setMsg('Press article deleted!');
       setTimeout(() => setMsg(null), 3000);

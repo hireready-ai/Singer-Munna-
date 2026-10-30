@@ -4,10 +4,21 @@
  */
 export async function adminApi(url: string, options: RequestInit = {}) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as any || {}),
   };
+
+  // Only set application/json if body is not FormData and Content-Type is not explicitly specified
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  // If body is FormData, delete Content-Type to let browser assign correct boundary
+  if (isFormData) {
+    delete headers['Content-Type'];
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -33,4 +44,3 @@ export async function adminApi(url: string, options: RequestInit = {}) {
 
   return data;
 }
-

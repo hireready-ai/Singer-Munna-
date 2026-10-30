@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSessionAdmin, logAudit } from '@/lib/auth';
 
@@ -44,9 +45,16 @@ export async function POST(req: NextRequest) {
     });
 
     await logAudit('CREATE', 'MusicTrack', track.id, `Created track ${track.title}`, session.username);
+    
+    try {
+      revalidatePath('/');
+      revalidatePath('/music');
+    } catch (e) {
+      console.warn('Revalidate warning:', e);
+    }
+
     return NextResponse.json(track);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-

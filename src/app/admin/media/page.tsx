@@ -18,6 +18,7 @@ import {
   Crop,
 } from 'lucide-react';
 import { ImageCropperModal } from '@/components/admin/ImageCropperModal';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminMediaPage() {
   const [assets, setAssets] = useState<any[]>([]);
@@ -68,12 +69,11 @@ export default function AdminMediaPage() {
     formData.append('category', 'Uploads');
 
     try {
-      const res = await fetch('/api/media', {
+      await adminApi('/api/media', {
         method: 'POST',
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Failed to upload file');
       fetchAssets();
       setMsg(`फ़ाइल "${file.name}" सफलतापूर्वक अपलोड हो गई!`);
       setTimeout(() => setMsg(null), 3000);
@@ -92,12 +92,11 @@ export default function AdminMediaPage() {
     formData.append('category', 'Uploads');
 
     try {
-      const res = await fetch('/api/media', {
+      await adminApi('/api/media', {
         method: 'POST',
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Failed to save cropped image');
       setCropperOpen(false);
       fetchAssets();
       setMsg('क्रॉप की गई फोटो सफलतापूर्वक मीडिया लाइब्रेरी में सेव हो गई!');
@@ -117,8 +116,10 @@ export default function AdminMediaPage() {
 
   const handleDelete = async (id: string, force = false) => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
       const res = await fetch(`/api/media/${id}${force ? '?force=true' : ''}`, {
         method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
 

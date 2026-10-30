@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminEventsPage() {
   const [activeTab, setActiveTab] = useState<'EVENTS' | 'CALENDAR'>('EVENTS');
@@ -97,13 +98,10 @@ export default function AdminEventsPage() {
       const url = isEdit ? `/api/events/${editingEvent.id}` : '/api/events';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingEvent),
       });
-
-      if (!res.ok) throw new Error('कार्यक्रम सेव करने में समस्या आई');
 
       setIsEventModalOpen(false);
       fetchData();
@@ -120,7 +118,7 @@ export default function AdminEventsPage() {
     if (!confirm(`क्या आप कार्यक्रम "${title}" को हटाना चाहते हैं?`)) return;
 
     try {
-      await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      await adminApi(`/api/events/${id}`, { method: 'DELETE' });
       fetchData();
       setMsg('कार्यक्रम हटा दिया गया!');
       setTimeout(() => setMsg(null), 3000);
@@ -135,13 +133,10 @@ export default function AdminEventsPage() {
     setSaving(true);
 
     try {
-      const res = await fetch('/api/calendar', {
+      await adminApi('/api/calendar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(slotData),
       });
-
-      if (!res.ok) throw new Error('कैलेंडर अपडेट करने में समस्या आई');
 
       setIsSlotModalOpen(false);
       fetchData();
@@ -158,7 +153,7 @@ export default function AdminEventsPage() {
     if (!confirm(`क्या आप ${dateStr} की एंट्री हटाना चाहते हैं?`)) return;
 
     try {
-      await fetch(`/api/calendar/${id}`, { method: 'DELETE' });
+      await adminApi(`/api/calendar/${id}`, { method: 'DELETE' });
       fetchData();
       setMsg('कैलेंडर स्लॉट हटा दिया गया!');
       setTimeout(() => setMsg(null), 3000);

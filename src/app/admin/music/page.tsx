@@ -7,14 +7,17 @@ import {
   Trash2,
   Play,
   Pause,
-  Sparkles,
   CheckCircle2,
   X,
   Music2,
   ExternalLink,
+  Upload,
+  Link as LinkIcon,
+  Volume2,
 } from 'lucide-react';
 import { useAudio } from '@/lib/audio-context';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminMusicPage() {
   const { playTrack, currentTrack, isPlaying } = useAudio();
@@ -24,11 +27,14 @@ export default function AdminMusicPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [audioSourceMode, setAudioSourceMode] = useState<'upload' | 'link'>('upload');
 
   const fetchTracks = () => {
     fetch('/api/music?all=true')
       .then((res) => res.json())
-      .then((d) => setTracks(d))
+      .then((d) => {
+        if (Array.isArray(d)) setTracks(d);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   };
@@ -40,6 +46,8 @@ export default function AdminMusicPage() {
   const handleOpenModal = (track?: any) => {
     if (track) {
       setEditingTrack(track);
+      const isExternalLink = track.audioUrl?.startsWith('http') && !track.audioUrl.includes(window?.location?.hostname || '');
+      setAudioSourceMode(isExternalLink ? 'link' : 'upload');
     } else {
       setEditingTrack({
         title: '',
@@ -57,12 +65,18 @@ export default function AdminMusicPage() {
         published: true,
         youtubeUrl: '',
       });
+      setAudioSourceMode('upload');
     }
     setIsModalOpen(true);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!editingTrack?.audioUrl?.trim()) {
+      alert('कृपया भजन की ऑडियो फ़ाइल या लिंक दर्ज करें।');
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -70,20 +84,17 @@ export default function AdminMusicPage() {
       const url = isEdit ? `/api/music/${editingTrack.id}` : '/api/music';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      await adminApi(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingTrack),
       });
-
-      if (!res.ok) throw new Error('भजन सेव करने में समस्या आई');
 
       setIsModalOpen(false);
       fetchTracks();
       setMsg(isEdit ? 'भजन विवरण सफलतापूर्वक अपडेट हुआ!' : 'नया भजन सफलतापूर्वक जुड़ गया!');
-      setTimeout(() => setMsg(null), 3000);
+      setTimeout(() => setMsg(null), 3500);
     } catch (err: any) {
-      alert(err.message || 'Error saving track');
+      alert(err.message || 'भजन सेव करने में समस्या आई');
     } finally {
       setSaving(false);
     }
@@ -93,8 +104,7 @@ export default function AdminMusicPage() {
     if (!confirm(`क्या आप भजन "${title}" को हटाना चाहते हैं?`)) return;
 
     try {
-      const res = await fetch(`/api/music/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete track');
+      await adminApi(`/api/music/${id}`, { method: 'DELETE' });
       fetchTracks();
       setMsg('भजन सफलतापूर्वक हटा दिया गया!');
       setTimeout(() => setMsg(null), 3000);
@@ -120,7 +130,7 @@ export default function AdminMusicPage() {
             भजन एवं संगीत प्रबंधन (Music & Bhajans Management)
           </h1>
           <p className="text-xs text-gray-400">
-            यहाँ से पापा के नए भजन, ऑडियो फाइल, कवर फोटो और श्रेणी जोड़ें या बदलें।
+            यहाँ से नए रिकॉर्ड किए गए भजन (MP3) अपलोड करें या ऑनलाइन लिंक जोड़ें। होमपेज और Music प्लेयर में तुरंत उपलब्ध होगा।
           </p>
         </div>
 
@@ -139,7 +149,7 @@ export default function AdminMusicPage() {
             className="px-4 py-2.5 rounded-xl bg-gold hover:bg-gold-light text-navy font-bold text-xs flex items-center gap-2 shadow-lg transition"
           >
             <Plus className="w-4 h-4" />
-            <span>+ नया भजन जोड़ें (Add Track)</span>
+            <span>+ नया भजन जोड़ें (Add Bhajan)</span>
           </button>
         </div>
       </div>
@@ -155,76 +165,99 @@ export default function AdminMusicPage() {
       <div className="bg-[#151B2B] rounded-2xl border border-gold/30 overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-navy-light bg-navy-light/60 text-gold font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4">भजन / Track</th>
-                <th className="py-3 px-4">श्रेणी / Category</th>
-                <th className="py-3 px-4">एल्बम / Album</th>
-                <th className="py-3 px-4">अवधि / Duration</th>
-                <th className="py-3 px-4">फीचर्ड (Featured)</th>
-                <th className="py-3 px-4">स्थिति (Status)</th>
-                <th className="py-3 px-4 text-right">कार्रवाई (Actions)</th>
+            <thead className="bg-[#192033] text-gold uppercase tracking-wider font-semibold border-b border-gold/20">
+              <tr>
+                <th className="p-4 w-12 text-center">चलाएँ</th>
+                <th className="p-4">शीर्षक व एल्बम</th>
+                <th className="p-4">श्रेणी</th>
+                <th className="p-4">अवधि</th>
+                <th className="p-4">स्थिति</th>
+                <th className="p-4 text-right">कार्रवाई</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-navy-light">
+            <tbody className="divide-y divide-navy-light/60">
               {tracks.map((track) => {
-                const isPlayingThis = currentTrack?.id === track.id && isPlaying;
+                const isThisPlaying = isPlaying && currentTrack?.id === track.id;
                 return (
                   <tr key={track.id} className="hover:bg-navy-light/30 transition">
-                    <td className="py-3 px-4">
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() =>
+                          playTrack({
+                            id: track.id,
+                            title: track.title,
+                            titleHi: track.titleHi || track.title,
+                            artist: 'गायक मुन्ना कुमार निराला',
+                            album: track.albumHi || track.album,
+                            audioUrl: track.audioUrl,
+                            coverImage: track.coverImage || '/images/munna_nirala_hero.jpg',
+                            duration: track.duration || '05:00',
+                          })
+                        }
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition shadow ${
+                          isThisPlaying
+                            ? 'bg-gold text-navy shadow-gold/50'
+                            : 'bg-navy-light hover:bg-gold hover:text-navy text-gold'
+                        }`}
+                      >
+                        {isThisPlaying ? (
+                          <Pause className="w-4 h-4 fill-current" />
+                        ) : (
+                          <Play className="w-4 h-4 fill-current ml-0.5" />
+                        )}
+                      </button>
+                    </td>
+
+                    <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-gold/30 flex-shrink-0 bg-black">
-                          <img
-                            src={track.coverImage || '/images/munna_nirala_hero.jpg'}
-                            alt={track.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => playTrack(track)}
-                            className="absolute inset-0 bg-black/40 flex items-center justify-center text-gold hover:text-white"
-                          >
-                            {isPlayingThis ? (
-                              <Pause className="w-4 h-4 fill-current" />
-                            ) : (
-                              <Play className="w-4 h-4 fill-current ml-0.5" />
-                            )}
-                          </button>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-ivory text-sm truncate max-w-xs">{track.titleHi || track.title}</p>
-                          <p className="text-gray-400 text-[11px] truncate max-w-xs">{track.title}</p>
+                        <img
+                          src={track.coverImage || '/images/munna_nirala_hero.jpg'}
+                          alt={track.title}
+                          className="w-10 h-10 rounded-lg object-cover border border-gold/30 flex-shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/images/munna_nirala_hero.jpg';
+                          }}
+                        />
+                        <div>
+                          <p className="font-serif font-bold text-ivory text-sm">
+                            {track.titleHi || track.title}
+                          </p>
+                          <p className="text-[11px] text-gray-400">
+                            {track.albumHi || track.album} • {track.title}
+                          </p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="py-3 px-4 text-gold font-medium">{track.categoryHi || track.category}</td>
-                    <td className="py-3 px-4 text-gray-300">{track.albumHi || track.album || 'एकल'}</td>
-                    <td className="py-3 px-4 text-gray-400 font-mono">{track.duration}</td>
-
-                    <td className="py-3 px-4">
-                      {track.isFeatured ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                          ★ Featured (होमपेज)
-                        </span>
-                      ) : (
-                        <span className="text-gray-500 text-[11px]">सामान्य</span>
-                      )}
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          track.published
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        }`}
-                      >
-                        {track.published ? 'लाइव (Live)' : 'ड्राफ्ट (Draft)'}
+                    <td className="p-4">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-navy-light text-gold border border-gold/20">
+                        {track.categoryHi || track.category}
                       </span>
                     </td>
 
-                    <td className="py-3 px-4 text-right">
+                    <td className="p-4 text-gray-300 font-mono text-[11px]">
+                      {track.duration || '05:00'}
+                    </td>
+
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            track.published ? 'text-emerald-400 bg-emerald-500/20' : 'text-red-400 bg-red-500/20'
+                          }`}
+                        >
+                          {track.published ? 'लाइव' : 'ड्राफ्ट'}
+                        </span>
+                        {track.isFeatured && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#6F1D35] text-gold-light border border-gold/30">
+                            ★ Featured
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenModal(track)}
@@ -252,8 +285,8 @@ export default function AdminMusicPage() {
 
       {/* Edit / Create Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#151B2B] rounded-2xl border border-gold/40 p-6 sm:p-8 max-w-3xl w-full shadow-2xl max-h-[90vh] overflow-y-auto space-y-5 text-ivory">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-[#151B2B] rounded-2xl border border-gold/40 p-5 sm:p-7 max-w-3xl w-full shadow-2xl max-h-[92vh] overflow-y-auto space-y-5 text-ivory">
             <div className="flex items-center justify-between border-b border-navy-light pb-3">
               <h3 className="text-lg font-serif font-bold text-ivory flex items-center gap-2">
                 <Music2 className="w-5 h-5 text-gold" />
@@ -269,7 +302,7 @@ export default function AdminMusicPage() {
             </div>
 
             <form onSubmit={handleSave} className="space-y-5">
-              {/* Cover Artwork Uploader with Exact Recommended Size */}
+              {/* Cover Artwork Uploader */}
               <MediaUploader
                 label="Album Cover Artwork"
                 labelHi="भजन/एल्बम का कवर फोटो (Artwork)"
@@ -280,17 +313,85 @@ export default function AdminMusicPage() {
                 helperTextHi="चौकोर पोस्टर या फोटो यहाँ अपलोड करें।"
               />
 
-              {/* Audio File Uploader with Exact Size Guidelines */}
-              <MediaUploader
-                label="Audio Recording (.mp3 / .wav)"
-                labelHi="ऑडियो भजन फ़ाइल (Audio MP3 File)"
-                recommendedSize="MP3, WAV, M4A फ़ाइल, अधिकतम 50MB"
-                value={editingTrack.audioUrl || ''}
-                onChange={(url) => setEditingTrack({ ...editingTrack, audioUrl: url })}
-                fileType="AUDIO"
-                helperTextHi="पापा की रिकॉर्ड की गई MP3 ऑडियो फाइल यहाँ अपलोड करें। या कोई ऑनलाइन लिंक भी डाल सकते हैं।"
-              />
+              {/* Audio Source Selector */}
+              <div className="space-y-3 bg-[#192033] p-4 rounded-xl border border-gold/30">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-ivory">
+                    ऑडियो फ़ाइल या लिंक (Audio Recording / MP3) *
+                  </label>
+                  <div className="flex items-center gap-1 bg-[#101422] p-1 rounded-lg border border-gold/20">
+                    <button
+                      type="button"
+                      onClick={() => setAudioSourceMode('upload')}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
+                        audioSourceMode === 'upload'
+                          ? 'bg-gold text-navy shadow'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>फ़ाइल अपलोड (Upload MP3)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAudioSourceMode('link')}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition ${
+                        audioSourceMode === 'link'
+                          ? 'bg-gold text-navy shadow'
+                          : 'text-gray-300 hover:text-white'
+                      }`}
+                    >
+                      <LinkIcon className="w-3.5 h-3.5" />
+                      <span>ऑनलाइन ऑडियो लिंक</span>
+                    </button>
+                  </div>
+                </div>
 
+                {audioSourceMode === 'upload' ? (
+                  <MediaUploader
+                    label="Audio Recording (.mp3 / .wav / .m4a)"
+                    labelHi="कंप्यूटर या मोबाइल से MP3 ऑडियो फ़ाइल चुनें"
+                    recommendedSize="MP3, WAV, M4A, OGG फ़ाइल, अधिकतम 50MB"
+                    value={editingTrack.audioUrl || ''}
+                    onChange={(url) => setEditingTrack({ ...editingTrack, audioUrl: url })}
+                    fileType="AUDIO"
+                    helperTextHi="पापा की रिकॉर्ड की गई MP3 ऑडियो फाइल यहाँ अपलोड करें। यह तुरंत वेबसाइट पर लाइव हो जाएगी।"
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-gold font-medium">
+                      किसी भी ऑनलाइन MP3, ऑडियो सीडीएन, या क्लाउड स्टोरेज का डायरेक्ट लिंक डालें:
+                    </p>
+                    <input
+                      type="text"
+                      required
+                      value={editingTrack.audioUrl || ''}
+                      onChange={(e) => setEditingTrack({ ...editingTrack, audioUrl: e.target.value })}
+                      placeholder="उदा. https://.../bhajan.mp3"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+                )}
+
+                {/* Instant Audio Listen Bar */}
+                {editingTrack.audioUrl && (
+                  <div className="pt-2 bg-black/40 p-3 rounded-lg border border-gold/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 truncate">
+                      <Volume2 className="w-4 h-4 text-gold flex-shrink-0" />
+                      <span className="text-xs text-gray-300 truncate font-mono text-[11px]">
+                        {editingTrack.audioUrl}
+                      </span>
+                    </div>
+                    <audio
+                      src={editingTrack.audioUrl}
+                      controls
+                      className="h-8 max-w-full sm:max-w-xs"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Title Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">
@@ -313,7 +414,7 @@ export default function AdminMusicPage() {
                   <input
                     type="text"
                     required
-                    value={editingTrack.title}
+                    value={editingTrack.title || ''}
                     onChange={(e) => setEditingTrack({ ...editingTrack, title: e.target.value })}
                     placeholder="e.g. Mangal Bhavan Amangal Hari"
                     className="w-full px-3.5 py-2.5 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
@@ -321,6 +422,7 @@ export default function AdminMusicPage() {
                 </div>
               </div>
 
+              {/* Category, Album, Duration */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">
@@ -328,7 +430,17 @@ export default function AdminMusicPage() {
                   </label>
                   <select
                     value={editingTrack.category}
-                    onChange={(e) => setEditingTrack({ ...editingTrack, category: e.target.value })}
+                    onChange={(e) => {
+                      const cat = e.target.value;
+                      let catHi = 'भजन';
+                      if (cat === 'Sundarkand') catHi = 'श्री सुंदरकांड पाठ';
+                      else if (cat === 'Mata Jagran') catHi = 'माता जागरण एवं चौकी';
+                      else if (cat === 'Khatu Shyam Sandhya') catHi = 'श्री खाटू श्याम संध्या';
+                      else if (cat === 'Sai Sandhya') catHi = 'श्री साईं संध्या';
+                      else if (cat === 'Akhand Ashtayam') catHi = 'अखंड अष्टयाम';
+                      else if (cat === 'Rangarang') catHi = 'रंगारंग व सांस्कृतिक';
+                      setEditingTrack({ ...editingTrack, category: cat, categoryHi: catHi });
+                    }}
                     className="w-full px-3 py-2.5 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
                   >
                     <option value="Sundarkand">🌺 श्री सुंदरकांड पाठ (Sundarkand)</option>
@@ -348,7 +460,7 @@ export default function AdminMusicPage() {
                   <input
                     type="text"
                     value={editingTrack.album || ''}
-                    onChange={(e) => setEditingTrack({ ...editingTrack, album: e.target.value })}
+                    onChange={(e) => setEditingTrack({ ...editingTrack, album: e.target.value, albumHi: e.target.value })}
                     placeholder="उदा. सुंदरकांड भाग १"
                     className="w-full px-3.5 py-2.5 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
                   />
@@ -364,6 +476,35 @@ export default function AdminMusicPage() {
                     onChange={(e) => setEditingTrack({ ...editingTrack, duration: e.target.value })}
                     placeholder="06:30"
                     className="w-full px-3.5 py-2.5 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+              </div>
+
+              {/* External Links (YouTube / Spotify) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    यूट्यूब वीडियो लिंक (वैकल्पिक / Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingTrack.youtubeUrl || ''}
+                    onChange={(e) => setEditingTrack({ ...editingTrack, youtubeUrl: e.target.value })}
+                    placeholder="https://youtube.com/watch?v=..."
+                    className="w-full px-3.5 py-2 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    Spotify लिंक (वैकल्पिक / Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingTrack.spotifyUrl || ''}
+                    onChange={(e) => setEditingTrack({ ...editingTrack, spotifyUrl: e.target.value })}
+                    placeholder="https://open.spotify.com/track/..."
+                    className="w-full px-3.5 py-2 rounded-lg bg-navy-light border border-gold/30 text-ivory text-xs focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
@@ -404,7 +545,7 @@ export default function AdminMusicPage() {
                   disabled={saving}
                   className="px-6 py-2.5 rounded-xl bg-gold hover:bg-gold-light text-navy font-bold text-xs shadow-lg transition"
                 >
-                  {saving ? 'सेव हो रहा है...' : 'भजन सेव करें (Save Track)'}
+                  {saving ? 'सेव हो रहा है...' : 'भजन सेव करें (Save Bhajan)'}
                 </button>
               </div>
             </form>

@@ -8,6 +8,7 @@ export interface AudioTrack {
   titleHi?: string;
   album?: string;
   albumHi?: string;
+  artist?: string;
   audioUrl: string;
   coverImage?: string;
   duration?: string;

@@ -16,6 +16,7 @@ import {
   Users,
   MapPin,
 } from 'lucide-react';
+import { adminApi } from '@/lib/admin-client';
 
 export default function AdminBookingsPage() {
   const [enquiries, setEnquiries] = useState<any[]>([]);
@@ -54,13 +55,10 @@ export default function AdminBookingsPage() {
     setSaving(true);
 
     try {
-      const res = await fetch(`/api/booking/${selectedEnquiry.id}`, {
+      await adminApi(`/api/booking/${selectedEnquiry.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, adminNotes }),
       });
-
-      if (!res.ok) throw new Error('Failed to update enquiry');
 
       setIsEditModalOpen(false);
       fetchEnquiries();
@@ -77,7 +75,7 @@ export default function AdminBookingsPage() {
     if (!confirm(`Are you sure you want to delete enquiry ${refId}?`)) return;
 
     try {
-      await fetch(`/api/booking/${id}`, { method: 'DELETE' });
+      await adminApi(`/api/booking/${id}`, { method: 'DELETE' });
       fetchEnquiries();
       setMsg(`Enquiry ${refId} deleted!`);
       setTimeout(() => setMsg(null), 3000);
