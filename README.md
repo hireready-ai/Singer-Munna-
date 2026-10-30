@@ -3,6 +3,34 @@
 
 ---
 
+## 🌐 Live Website & Links (लाइव वेबसाइट लिंक्स)
+
+- **GitHub Repository:** [https://github.com/hireready-ai/Singer-Munna-](https://github.com/hireready-ai/Singer-Munna-)
+- **Cloudflare Live URL:** [https://comedy-duration-selection-regular.trycloudflare.com](https://comedy-duration-selection-regular.trycloudflare.com)
+- **Local URL:** [http://localhost:3000](http://localhost:3000)
+- **Direct Admin Login:** [https://comedy-duration-selection-regular.trycloudflare.com/admin/login](https://comedy-duration-selection-regular.trycloudflare.com/admin/login) (नोट: ग्राहकों के फुटर से एडमिन लिंक हटा दिया गया है, एडमिन केवल इसी डायरेक्ट लिंक से खुलेगा)
+
+---
+
+## 🔑 एडमिन लॉगिन (Admin Credentials)
+
+- **Login URL:** `/admin/login`
+- **यूज़रनेम (Username):** `admin`
+- **पासवर्ड (Password):** `nirala@admin2026`
+
+---
+
+## ☁️ Custom Domain Mapping (singermunna.com) on Cloudflare
+
+1. Cloudflare Zero Trust / Cloudflare Dashboard में जाएँ।
+2. **Networks -> Tunnels** पर जाएँ।
+3. **Add a Public Hostname** पर क्लिक करें।
+4. **Domain:** `singermunna.com` (या Subdomain) चुनें।
+5. **Service Type:** `HTTP` और **URL:** `localhost:3000` सेट करें।
+6. सेव करते ही `singermunna.com` सीधा आपकी लाइव वेबसाइट से कनेक्ट हो जाएगा!
+
+---
+
 ## 🌟 Admin Panel Image & Video Upload Guidelines (फोटो एवं वीडियो साइज़ निर्देश)
 
 एडमिन पैनल में हर सेक्शन में अब सीधा कंप्यूटर/फ़ोन से फोटो और वीडियो अपलोड करने का बटन दिया गया है, साथ ही सही साइज़ भी लिख दिया गया है:
