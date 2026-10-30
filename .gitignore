@@ -41,3 +41,4 @@ pnpm-debug.log*
 
 # temporary files
 *.tmp*
+cloudflared.exe
