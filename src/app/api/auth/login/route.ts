@@ -17,7 +17,17 @@ function getClientIdentifier(req: NextRequest, username: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password } = await req.json();
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'अमान्य डेटा प्रारूप। (Invalid JSON body received)' },
+        { status: 400 }
+      );
+    }
+
+    const { username, password } = body;
 
     if (!username || !password) {
       return NextResponse.json(

@@ -15,7 +15,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { currentPassword, newUsername, newPassword } = await req.json();
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'अमान्य डेटा प्रारूप। (Invalid JSON body received)' },
+        { status: 400 }
+      );
+    }
+
+    const { currentPassword, newUsername, newPassword } = body;
 
     if (!currentPassword) {
       return NextResponse.json(
