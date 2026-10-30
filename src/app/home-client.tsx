@@ -820,7 +820,7 @@ export function HomePageClient({
         isOpen={Boolean(activeVideo)}
         onClose={() => setActiveVideo(null)}
         videoUrl={activeVideo?.url || ''}
-        title={activeVideo?.title}
+        title={activeVideo?.title || ''}
       />
 
       {/* Lightbox Modal */}

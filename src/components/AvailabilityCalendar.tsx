@@ -64,7 +64,7 @@ export function AvailabilityCalendar({ initialSchedules = [], onSelectDate }: Ca
   const dayNames = lang === 'hi' ? dayNamesHi : dayNamesEn;
 
   // Render calendar grid
-  const days = [];
+  const days: React.ReactNode[] = [];
   for (let i = 0; i < firstDayIndex; i++) {
     days.push(<div key={`empty-${i}`} className="h-14 sm:h-20 bg-navy-dark/40 rounded-md opacity-30" />);
   }

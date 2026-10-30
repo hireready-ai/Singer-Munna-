@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const results = [];
+    const results: any[] = [];
 
     for (const file of filesToProcess) {
       const buffer = Buffer.from(await file.arrayBuffer());
