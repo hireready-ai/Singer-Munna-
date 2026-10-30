@@ -24,6 +24,8 @@ export async function GET(
     const safeFilename = path.normalize(decodedFilename).replace(/^(\.\.[\/\\])+/, '');
 
     const possiblePaths = [
+      path.join('/tmp', 'images', safeFilename),
+      path.join('/tmp', 'uploads', safeFilename),
       path.join(process.cwd(), 'public', 'images', safeFilename),
       path.join(process.cwd(), 'public', 'uploads', safeFilename),
       path.join(process.cwd(), 'public', safeFilename),

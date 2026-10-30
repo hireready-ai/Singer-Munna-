@@ -4,6 +4,36 @@ import { getSessionAdmin, logAudit } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 
+function getUploadDirectory(): { dir: string; isReadOnly: boolean } {
+  // If running on Vercel or serverless, use /tmp/uploads
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmpDir = path.join('/tmp', 'uploads');
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+    return { dir: tmpDir, isReadOnly: true };
+  }
+
+  // Otherwise, try standard public/uploads
+  const defaultDir = path.join(process.cwd(), 'public', 'uploads');
+  try {
+    if (!fs.existsSync(defaultDir)) {
+      fs.mkdirSync(defaultDir, { recursive: true });
+    }
+    const testFile = path.join(defaultDir, `.test_${Date.now()}`);
+    fs.writeFileSync(testFile, '1');
+    fs.unlinkSync(testFile);
+    return { dir: defaultDir, isReadOnly: false };
+  } catch (err) {
+    // If permission denied or read-only filesystem, fallback to /tmp/uploads
+    const tmpDir = path.join('/tmp', 'uploads');
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
+    }
+    return { dir: tmpDir, isReadOnly: true };
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const type = searchParams.get('type');
@@ -41,11 +71,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
+    const { dir: uploadDir, isReadOnly } = getUploadDirectory();
     const results: any[] = [];
 
     for (const file of filesToProcess) {
@@ -53,15 +79,30 @@ export async function POST(req: NextRequest) {
       const ext = path.extname(file.name).toLowerCase();
       const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-      const filePath = path.join(uploadDir, safeName);
-      fs.writeFileSync(filePath, buffer);
+      // Always write to disk (either public/uploads or /tmp/uploads)
+      try {
+        const filePath = path.join(uploadDir, safeName);
+        fs.writeFileSync(filePath, buffer);
+      } catch (writeErr) {
+        console.warn('File disk write warning:', writeErr);
+      }
 
       let fileType = 'IMAGE';
       if (ext.match(/\.(mp3|wav|ogg|m4a|aac)$/)) fileType = 'AUDIO';
       else if (ext.match(/\.(mp4|webm|mov|mkv)$/)) fileType = 'VIDEO';
       else if (ext.match(/\.(pdf|doc|docx)$/)) fileType = 'DOCUMENT';
 
-      const fileUrl = `/uploads/${safeName}`;
+      // On serverless/read-only filesystem (Vercel), store images as self-contained Data URLs
+      // so they display immediately without depending on serverless ephemeral disks.
+      let fileUrl = `/uploads/${safeName}`;
+      if (isReadOnly && fileType === 'IMAGE' && buffer.length <= 4 * 1024 * 1024) {
+        let mime = 'image/jpeg';
+        if (ext === '.png') mime = 'image/png';
+        else if (ext === '.webp') mime = 'image/webp';
+        else if (ext === '.svg') mime = 'image/svg+xml';
+        else if (ext === '.gif') mime = 'image/gif';
+        fileUrl = `data:${mime};base64,${buffer.toString('base64')}`;
+      }
 
       const asset = await prisma.mediaAsset.create({
         data: {

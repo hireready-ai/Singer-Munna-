@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getSessionAdmin, logAudit } from '@/lib/auth';
 
@@ -43,9 +44,16 @@ export async function POST(req: NextRequest) {
     });
 
     await logAudit('CREATE', 'Event', event.id, `Created event ${event.title}`, session.username);
+    
+    try {
+      revalidatePath('/');
+      revalidatePath('/events');
+    } catch (e) {
+      console.warn('Revalidate warning:', e);
+    }
+
     return NextResponse.json(event);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-

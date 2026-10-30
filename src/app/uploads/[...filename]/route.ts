@@ -30,8 +30,9 @@ export async function GET(
     // Prevent directory traversal attacks
     const safeFilename = path.normalize(decodedFilename).replace(/^(\.\.[\/\\])+/, '');
 
-    // Search in public/uploads first, then public/images
+    // Search in /tmp/uploads first (for Vercel serverless), then public/uploads, then public/images
     const possiblePaths = [
+      path.join('/tmp', 'uploads', safeFilename),
       path.join(process.cwd(), 'public', 'uploads', safeFilename),
       path.join(process.cwd(), 'public', 'images', safeFilename),
       path.join(process.cwd(), 'public', safeFilename),
