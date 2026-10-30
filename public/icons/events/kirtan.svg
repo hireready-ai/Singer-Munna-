@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFDF8"/>
+      <stop offset="60%" stop-color="#FDF3DF"/>
+      <stop offset="100%" stop-color="#F7E2B5"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9CB7F"/>
+      <stop offset="50%" stop-color="#C7A45A"/>
+      <stop offset="100%" stop-color="#8C6228"/>
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="50%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#FFEB3B"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#8C6228" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background Badge Circle -->
+  <circle cx="50" cy="50" r="46" fill="url(#bgGrad)" stroke="#C7A45A" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#E6BE68" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.7"/>
+  
+      <!-- Musical Kartal / Cymbals & Dholak -->
+      <circle cx="38" cy="45" r="14" fill="#C7A45A" stroke="#8C6228" stroke-width="2"/>
+      <circle cx="38" cy="45" r="5" fill="#FFF0D0"/>
+      <circle cx="62" cy="45" r="14" fill="#C7A45A" stroke="#8C6228" stroke-width="2"/>
+      <circle cx="62" cy="45" r="5" fill="#FFF0D0"/>
+      <!-- Sound notes & aura -->
+      <path d="M42 28 C45 22 55 22 58 28" stroke="#6F1D35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M38 70 L62 70" stroke="#C7A45A" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="50" r="30" stroke="#C7A45A" stroke-width="1" stroke-dasharray="2 3" fill="none"/>
+    
+</svg>

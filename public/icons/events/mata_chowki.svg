@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFDF8"/>
+      <stop offset="60%" stop-color="#FDF3DF"/>
+      <stop offset="100%" stop-color="#F7E2B5"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9CB7F"/>
+      <stop offset="50%" stop-color="#C7A45A"/>
+      <stop offset="100%" stop-color="#8C6228"/>
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="50%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#FFEB3B"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#8C6228" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background Badge Circle -->
+  <circle cx="50" cy="50" r="46" fill="url(#bgGrad)" stroke="#C7A45A" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#E6BE68" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.7"/>
+  
+      <!-- Crown / Mukut & Trishul -->
+      <path d="M32 60 L38 35 L45 48 L50 24 L55 48 L62 35 L68 60 Z" fill="url(#goldGrad)" stroke="#8C6228" stroke-width="1.5"/>
+      <circle cx="50" cy="24" r="3" fill="#D32F2F"/>
+      <circle cx="38" cy="35" r="2.5" fill="#D32F2F"/>
+      <circle cx="62" cy="35" r="2.5" fill="#D32F2F"/>
+      <circle cx="50" cy="45" r="4" fill="#D32F2F"/>
+      <!-- Bindi / Red Tilak -->
+      <path d="M30 65 Q50 72 70 65 L68 60 Q50 66 32 60 Z" fill="#6F1D35"/>
+      <circle cx="50" cy="50" r="32" stroke="#C7A45A" stroke-width="1.2" stroke-dasharray="3 3" fill="none"/>
+    
+</svg>

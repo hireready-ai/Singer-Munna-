@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFDF8"/>
+      <stop offset="60%" stop-color="#FDF3DF"/>
+      <stop offset="100%" stop-color="#F7E2B5"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9CB7F"/>
+      <stop offset="50%" stop-color="#C7A45A"/>
+      <stop offset="100%" stop-color="#8C6228"/>
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="50%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#FFEB3B"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#8C6228" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background Badge Circle -->
+  <circle cx="50" cy="50" r="46" fill="url(#bgGrad)" stroke="#C7A45A" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#E6BE68" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.7"/>
+  
+      <!-- Sacred Shivling & Trishul with Tripundra -->
+      <path d="M40 38 C40 28 60 28 60 38 L60 55 C60 62 40 62 40 55 Z" fill="#3A3F4D" stroke="#1A1C23" stroke-width="1.5"/>
+      <!-- Tripundra on Shivling -->
+      <path d="M44 38 L56 38" stroke="#FAF1D9" stroke-width="1.2"/>
+      <path d="M44 41 L56 41" stroke="#FAF1D9" stroke-width="1.2"/>
+      <path d="M44 44 L56 44" stroke="#FAF1D9" stroke-width="1.2"/>
+      <circle cx="50" cy="41" r="1.5" fill="#D32F2F"/>
+      <!-- Jaldhari Base -->
+      <path d="M26 55 L74 55 Q78 62 68 64 L32 64 Q22 62 26 55 Z" fill="#2E333F"/>
+      <!-- Trishul on background -->
+      <path d="M50 16 L50 26 M44 20 Q50 26 56 20" stroke="#C7A45A" stroke-width="1.5" fill="none"/>
+    
+</svg>

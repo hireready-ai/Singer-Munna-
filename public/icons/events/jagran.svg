@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFDF8"/>
+      <stop offset="60%" stop-color="#FDF3DF"/>
+      <stop offset="100%" stop-color="#F7E2B5"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E9CB7F"/>
+      <stop offset="50%" stop-color="#C7A45A"/>
+      <stop offset="100%" stop-color="#8C6228"/>
+    </linearGradient>
+    <linearGradient id="fireGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#D32F2F"/>
+      <stop offset="50%" stop-color="#FF9800"/>
+      <stop offset="100%" stop-color="#FFEB3B"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#8C6228" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background Badge Circle -->
+  <circle cx="50" cy="50" r="46" fill="url(#bgGrad)" stroke="#C7A45A" stroke-width="1.5" filter="url(#shadow)"/>
+  <circle cx="50" cy="50" r="41" fill="none" stroke="#E6BE68" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.7"/>
+  
+      <!-- Holy Akhand Jyot / Flame -->
+      <path d="M50 20 C50 20 62 38 62 50 C62 57 56 63 50 63 C44 63 38 57 38 50 C38 38 50 20 50 20 Z" fill="url(#fireGrad)"/>
+      <path d="M50 32 C50 32 56 42 56 49 C56 53 53 56 50 56 C47 56 44 53 44 49 C44 42 50 32 50 32 Z" fill="#FFF275"/>
+      <!-- Diya Base -->
+      <path d="M26 58 C26 58 32 75 50 75 C68 75 74 58 74 58 L68 56 C68 56 62 70 50 70 C38 70 32 56 32 56 Z" fill="#C7A45A"/>
+      <ellipse cx="50" cy="57" rx="24" ry="4" fill="#8C6228"/>
+      <!-- Divine Rays -->
+      <circle cx="50" cy="46" r="32" stroke="#E6BE68" stroke-width="1.5" stroke-dasharray="3 4" fill="none" opacity="0.6"/>
+    
+</svg>

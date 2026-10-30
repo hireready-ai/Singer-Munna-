@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("SUPER_ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                 String   @id @default("default")
+  artistName         String   @default("Singer Munna Kumar Nirala")
+  artistNameHi       String   @default("गायक मुन्ना कुमार निराला")
+  tagline            String   @default("Renowned Devotional & Classical Vocalist | Shree Sundarkand Path, Mata Jagran, Bhajan & Rangarang Karyakram")
+  taglineHi          String   @default("सुप्रसिद्ध भजन एवं शास्त्रीय गायक | श्री सुंदरकांड पाठ, माता का जागरण, खाटू श्याम संध्या एवं रंगारंग कार्यक्रम")
+  shortBio           String   @default("With soulful melodies and devotion, Singer Munna Kumar Nirala brings divine spiritual bliss to millions of devotees across India through Sundarkand Path, Jagran, Chowki, and Auspicious Musical Celebrations.")
+  shortBioHi         String   @default("भक्ति, संगीत और आध्यात्मिक आनंद के पावन संगम में, गायक मुन्ना कुमार निराला अपने सुरीले कंठ और समर्पित भाव से श्री सुंदरकांड पाठ, माता जागरण, अखंड अष्टयाम व मांगलिक आयोजनों को अविस्मरणीय बनाते हैं।")
+  heroHeading        String   @default("Devotion Through Melody & Soul")
+  heroHeadingHi      String   @default("सुर और भक्ति का पावन संगम")
+  heroSubheading     String   @default("Official Musical Journey & Event Bookings of Singer Munna Kumar Nirala")
+  heroSubheadingHi   String   @default("गायक मुन्ना कुमार निराला की आधिकारिक वेबसाइट एवं कार्यक्रम बुकिंग")
+  heroImage          String   @default("/images/munna_nirala_hero.jpg")
+  heroVideo          String?
+  primaryPhone       String   @default("9990739614")
+  whatsappNumber     String   @default("9990739614")
+  secondaryWhatsapp  String   @default("7484004540")
+  email              String   @default("singermunnakumarnirala@gmail.com")
+  address            String   @default("Delhi NCR & Bihar, India (Available across India & Worldwide)")
+  addressHi          String   @default("दिल्ली एनसीआर एवं बिहार, भारत (संपूर्ण भारत एवं विदेशों में सेवा उपलब्ध)")
+  youtubeUrl         String   @default("https://www.youtube.com/@SingerMunnaKumarNirala")
+  instagramUrl       String   @default("https://www.instagram.com/singermunnakumarnirala")
+  facebookUrl        String   @default("https://www.facebook.com/singermunnakumarnirala")
+  spotifyUrl         String   @default("https://open.spotify.com")
+  updatedAt          DateTime @updatedAt
+}
+
+model Biography {
+  id                 String   @id @default("default")
+  introduction       String
+  introductionHi     String
+  fullBio            String
+  fullBioHi          String
+  musicalJourney     String
+  musicalJourneyHi   String
+  musicalStyles      String   @default("Devotional, Bhajan, Sundarkand, Ghazal, Classical & Folk")
+  musicalStylesHi    String   @default("भक्ति संगीत, भजन, सुंदरकांड पाठ, गजल, सुगम संगीत एवं लोकगीत")
+  portraitImage      String   @default("/images/munna_nirala_portrait.jpg")
+  pressKitUrl        String?
+  updatedAt          DateTime @updatedAt
+}
+
+model MusicTrack {
+  id          String   @id @default(cuid())
+  title       String
+  titleHi     String
+  album       String?  @default("Single")
+  albumHi     String?  @default("एकल")
+  audioUrl    String
+  coverImage  String   @default("/images/munna_nirala_hero.jpg")
+  duration    String   @default("05:30")
+  releaseDate String?
+  category    String   @default("Bhajan")
+  categoryHi  String   @default("भजन")
+  isFeatured  Boolean  @default(false)
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  spotifyUrl  String?
+  youtubeUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Video {
+  id            String   @id @default(cuid())
+  title         String
+  titleHi       String
+  description   String?
+  descriptionHi String?
+  videoUrl      String
+  thumbnail     String   @default("/images/munna_nirala_stage.jpg")
+  category      String   @default("Jagran & Chowki")
+  categoryHi    String   @default("माता जागरण एवं चौकी")
+  duration      String?  @default("08:45")
+  isFeatured    Boolean  @default(false)
+  order         Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model GalleryImage {
+  id         String   @id @default(cuid())
+  title      String
+  titleHi    String?
+  caption    String?
+  captionHi  String?
+  imageUrl   String
+  category   String   @default("Stage Performances")
+  categoryHi String?  @default("मंच प्रदर्शन")
+  altText    String?  @default("Singer Munna Kumar Nirala Live Performance")
+  showOnHome Boolean  @default(true)
+  order      Int      @default(0)
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  titleHi       String
+  eventDate     DateTime
+  time          String?  @default("07:00 PM onwards")
+  venue         String
+  venueHi       String?
+  city          String
+  cityHi        String?
+  description   String?
+  descriptionHi String?
+  posterImage   String?  @default("/images/munna_nirala_bhajan.jpg")
+  bookingUrl    String?
+  status        String   @default("UPCOMING") // UPCOMING, COMPLETED, CANCELLED
+  isPublic      Boolean  @default(true)
+  order         Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CalendarSchedule {
+  id           String   @id @default(cuid())
+  dateString   String   @unique // format "YYYY-MM-DD"
+  status       String   @default("BOOKED") // "BOOKED", "AVAILABLE", "TENTATIVE"
+  programTitle String?
+  city         String?
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Award {
+  id            String   @id @default(cuid())
+  title         String
+  titleHi       String
+  organization  String
+  year          String
+  description   String?
+  descriptionHi String?
+  imageUrl      String?
+  order         Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PressItem {
+  id          String   @id @default(cuid())
+  title       String
+  titleHi     String
+  publisher   String
+  publishDate String
+  articleUrl  String?
+  summary     String?
+  summaryHi   String?
+  imageUrl    String?
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BookingEnquiry {
+  id                  String   @id @default(cuid())
+  referenceId         String   @unique
+  fullName            String
+  phone               String
+  whatsapp            String?
+  email               String?
+  eventType           String   // Sundarkand, Jagran, Khatu Shyam Sandhya, Sai Sandhya, etc.
+  eventDate           String
+  city                String
+  venue               String
+  audienceSize        String?
+  budget              String?
+  specialRequirements String?
+  status              String   @default("NEW") // NEW, CONTACTED, CONFIRMED, COMPLETED, CANCELLED
+  adminNotes          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  title     String
+  filename  String
+  fileUrl   String
+  fileType  String   @default("IMAGE") // IMAGE, AUDIO, VIDEO, DOCUMENT
+  fileSize  Int?     @default(0)
+  category  String   @default("General")
+  altText   String?
+  usedIn    String?  @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // CREATE, UPDATE, DELETE, LOGIN
+  entityType String   // Event, MusicTrack, Video, Settings, etc.
+  entityId   String?
+  details    String?
+  user       String   @default("admin")
+  createdAt  DateTime @default(now())
+}
+
+model EventType {
+  id          String   @id @default(cuid())
+  title       String
+  titleHi     String
+  subtitle    String?
+  subtitleHi  String?
+  iconImage   String   @default("/images/munna_nirala_bhajan.jpg")
+  category    String?  @default("Devotional")
+  order       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProgramLocation {
+  id            String   @id @default(cuid())
+  city          String
+  cityHi        String
+  state         String
+  stateHi       String?
+  programCount  Int      @default(50)
+  highlightText String?
+  highlightHi   String?
+  image         String?  @default("/images/munna_nirala_stage.jpg")
+  order         Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  clientName    String
+  clientNameHi  String?
+  designation   String?
+  designationHi String?
+  city          String?
+  cityHi        String?
+  eventType     String   @default("Jagran")
+  eventTypeHi   String?  @default("माता का जागरण")
+  rating        Int      @default(5)
+  reviewText    String
+  reviewTextHi  String
+  avatarUrl     String?  @default("/images/munna_nirala_portrait.jpg")
+  verified      Boolean  @default(true)
+  order         Int      @default(0)
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
